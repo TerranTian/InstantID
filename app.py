@@ -15,21 +15,31 @@ handler = TimedRotatingFileHandler(
 handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
 logging.getLogger().addHandler(handler)
 
+import os
+
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:64"
+
 
 from fastapi import FastAPI, Request
 
 app = FastAPI()
 
-from gradio_demo.app import main as ui_creator
-from gradio_demo.app import main as multicontrolnet_ui_creator
+
+# from gradio_demo.app import main as ui_creator
+
+from gradio_demo.app_multicontrolnet import main as multicontrolnet_ui_creator
 
 import gradio as gr
 
-ui = ui_creator()
-multicontrolnet_ui = multicontrolnet_ui_creator()
+# ui = ui_creator()
+# ui.title = "InstantID"
 
-gr.mount_gradio_app(app, ui, path="/app")
-# gr.mount_gradio_app(app, multicontrolnet_ui, path="/app_multicontrolnet")
+multicontrolnet_ui = multicontrolnet_ui_creator()
+multicontrolnet_ui.title = "InstantID"
+print("fuck ...")
+
+# gr.mount_gradio_app(app, ui, path="/app")
+gr.mount_gradio_app(app, multicontrolnet_ui, path="/app")
 
 
 def run(arg_str=""):
@@ -39,8 +49,8 @@ def run(arg_str=""):
     if type(arg_str) == str:
         arr = arg_str.split()
 
-    args = program.parse_args(arr)
-    pre_start(args)
+    # args = program.parse_args(arr)
+    # pre_start(args)
     return app
 
 

@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append("./")
 
 from typing import Tuple
@@ -23,10 +24,12 @@ from huggingface_hub import hf_hub_download
 
 from insightface.app import FaceAnalysis
 
-from style_template import styles
-from pipeline_stable_diffusion_xl_instantid_full import StableDiffusionXLInstantIDPipeline
-from model_util import load_models_xl, get_torch_device, torch_gc
-from controlnet_util import openpose, get_depth_map, get_canny_image
+from gradio_demo.style_template import styles
+from pipeline_stable_diffusion_xl_instantid_full import (
+    StableDiffusionXLInstantIDPipeline,
+)
+from gradio_demo.model_util import load_models_xl, get_torch_device, torch_gc
+from gradio_demo.controlnet_util import openpose, get_depth_map, get_canny_image
 
 import gradio as gr
 
@@ -262,8 +265,8 @@ def main(pretrained_model_name_or_path="wangqixun/YamerMIX_v8", enable_lcm_arg=F
 
     def resize_img(
         input_image,
-        max_side=1280,
-        min_side=1024,
+        max_side=512,
+        min_side=512,
         size=None,
         pad_to_max_side=False,
         mode=PIL.Image.BILINEAR,
@@ -357,7 +360,12 @@ def main(pretrained_model_name_or_path="wangqixun/YamerMIX_v8", enable_lcm_arg=F
                 f"Unable to detect a face in the image. Please upload a different photo with a clear face."
             )
 
-        face_info = sorted(face_info, key=lambda x:(x['bbox'][2]-x['bbox'][0])*(x['bbox'][3]-x['bbox'][1]))[-1]  # only use the maximum face
+        face_info = sorted(
+            face_info,
+            key=lambda x: (x["bbox"][2] - x["bbox"][0]) * (x["bbox"][3] - x["bbox"][1]),
+        )[
+            -1
+        ]  # only use the maximum face
         face_emb = face_info["embedding"]
         face_kps = draw_kps(convert_from_cv2_to_image(face_image_cv2), face_info["kps"])
         img_controlnet = face_image
@@ -432,47 +440,52 @@ def main(pretrained_model_name_or_path="wangqixun/YamerMIX_v8", enable_lcm_arg=F
 
         return images[0], gr.update(visible=True)
 
-    # Description
-    title = r"""
-    <h1 align="center">InstantID: Zero-shot Identity-Preserving Generation in Seconds</h1>
-    """
+    # # Description
+    # title = r"""
+    # <h1 align="center">InstantID: Zero-shot Identity-Preserving Generation in Seconds</h1>
+    # """
 
-    description = r"""
-    <b>Official 🤗 Gradio demo</b> for <a href='https://github.com/InstantID/InstantID' target='_blank'><b>InstantID: Zero-shot Identity-Preserving Generation in Seconds</b></a>.<br>
+    # description = r"""
+    # <b>Official 🤗 Gradio demo</b> for <a href='https://github.com/InstantID/InstantID' target='_blank'><b>InstantID: Zero-shot Identity-Preserving Generation in Seconds</b></a>.<br>
 
-    How to use:<br>
-    1. Upload an image with a face. For images with multiple faces, we will only detect the largest face. Ensure the face is not too small and is clearly visible without significant obstructions or blurring.
-    2. (Optional) You can upload another image as a reference for the face pose. If you don't, we will use the first detected face image to extract facial landmarks. If you use a cropped face at step 1, it is recommended to upload it to define a new face pose.
-    3. (Optional) You can select multiple ControlNet models to control the generation process. The default is to use the IdentityNet only. The ControlNet models include pose skeleton, canny, and depth. You can adjust the strength of each ControlNet model to control the generation process.
-    4. Enter a text prompt, as done in normal text-to-image models.
-    5. Click the <b>Submit</b> button to begin customization.
-    6. Share your customized photo with your friends and enjoy! 😊"""
+    # How to use:<br>
+    # 1. Upload an image with a face. For images with multiple faces, we will only detect the largest face. Ensure the face is not too small and is clearly visible without significant obstructions or blurring.
+    # 2. (Optional) You can upload another image as a reference for the face pose. If you don't, we will use the first detected face image to extract facial landmarks. If you use a cropped face at step 1, it is recommended to upload it to define a new face pose.
+    # 3. (Optional) You can select multiple ControlNet models to control the generation process. The default is to use the IdentityNet only. The ControlNet models include pose skeleton, canny, and depth. You can adjust the strength of each ControlNet model to control the generation process.
+    # 4. Enter a text prompt, as done in normal text-to-image models.
+    # 5. Click the <b>Submit</b> button to begin customization.
+    # 6. Share your customized photo with your friends and enjoy! 😊"""
 
-    article = r"""
-    ---
-    📝 **Citation**
-    <br>
-    If our work is helpful for your research or applications, please cite us via:
-    ```bibtex
-    @article{wang2024instantid,
-    title={InstantID: Zero-shot Identity-Preserving Generation in Seconds},
-    author={Wang, Qixun and Bai, Xu and Wang, Haofan and Qin, Zekui and Chen, Anthony},
-    journal={arXiv preprint arXiv:2401.07519},
-    year={2024}
-    }
-    ```
-    📧 **Contact**
-    <br>
-    If you have any questions, please feel free to open an issue or directly reach us out at <b>haofanwang.ai@gmail.com</b>.
-    """
+    # article = r"""
+    # ---
+    # 📝 **Citation**
+    # <br>
+    # If our work is helpful for your research or applications, please cite us via:
+    # ```bibtex
+    # @article{wang2024instantid,
+    # title={InstantID: Zero-shot Identity-Preserving Generation in Seconds},
+    # author={Wang, Qixun and Bai, Xu and Wang, Haofan and Qin, Zekui and Chen, Anthony},
+    # journal={arXiv preprint arXiv:2401.07519},
+    # year={2024}
+    # }
+    # ```
+    # 📧 **Contact**
+    # <br>
+    # If you have any questions, please feel free to open an issue or directly reach us out at <b>haofanwang.ai@gmail.com</b>.
+    # """
 
-    tips = r"""
-    ### Usage tips of InstantID
-    1. If you're not satisfied with the similarity, try increasing the weight of "IdentityNet Strength" and "Adapter Strength."    
-    2. If you feel that the saturation is too high, first decrease the Adapter strength. If it remains too high, then decrease the IdentityNet strength.
-    3. If you find that text control is not as expected, decrease Adapter strength.
-    4. If you find that realistic style is not good enough, go for our Github repo and use a more realistic base model.
-    """
+    # tips = r"""
+    # ### Usage tips of InstantID
+    # 1. If you're not satisfied with the similarity, try increasing the weight of "IdentityNet Strength" and "Adapter Strength."
+    # 2. If you feel that the saturation is too high, first decrease the Adapter strength. If it remains too high, then decrease the IdentityNet strength.
+    # 3. If you find that text control is not as expected, decrease Adapter strength.
+    # 4. If you find that realistic style is not good enough, go for our Github repo and use a more realistic base model.
+    # """
+
+    title = ""
+    description = ""
+    article = ""
+    tips = ""
 
     css = """
     .gradio-container {width: 85% !important}
@@ -505,7 +518,8 @@ def main(pretrained_model_name_or_path="wangqixun/YamerMIX_v8", enable_lcm_arg=F
 
                 submit = gr.Button("Submit", variant="primary")
                 enable_LCM = gr.Checkbox(
-                    label="Enable Fast Inference with LCM", value=enable_lcm_arg,
+                    label="Enable Fast Inference with LCM",
+                    value=enable_lcm_arg,
                     info="LCM speeds up the inference step, the trade-off is the quality of the generated image. It performs better with portrait face images rather than distant faces",
                 )
                 style = gr.Dropdown(
@@ -531,8 +545,10 @@ def main(pretrained_model_name_or_path="wangqixun/YamerMIX_v8", enable_lcm_arg=F
                 )
                 with gr.Accordion("Controlnet"):
                     controlnet_selection = gr.CheckboxGroup(
-                        ["pose", "canny", "depth"], label="Controlnet", value=["pose"],
-                        info="Use pose for skeleton inference, canny for edge detection, and depth for depth map estimation. You can try all three to control the generation process"
+                        ["pose", "canny", "depth"],
+                        label="Controlnet",
+                        value=["pose"],
+                        info="Use pose for skeleton inference, canny for edge detection, and depth for depth map estimation. You can try all three to control the generation process",
                     )
                     pose_strength = gr.Slider(
                         label="Pose strength",
@@ -596,7 +612,9 @@ def main(pretrained_model_name_or_path="wangqixun/YamerMIX_v8", enable_lcm_arg=F
                         value="EulerDiscreteScheduler",
                     )
                     randomize_seed = gr.Checkbox(label="Randomize seed", value=True)
-                    enhance_face_region = gr.Checkbox(label="Enhance non-face region", value=True)
+                    enhance_face_region = gr.Checkbox(
+                        label="Enhance non-face region", value=True
+                    )
 
             with gr.Column(scale=1):
                 gallery = gr.Image(label="Generated Images")
@@ -649,12 +667,13 @@ def main(pretrained_model_name_or_path="wangqixun/YamerMIX_v8", enable_lcm_arg=F
             inputs=[face_file, pose_file, prompt, style, negative_prompt],
             fn=run_for_examples,
             outputs=[gallery, usage_tips],
-            cache_examples=True,
+            cache_examples=False,
         )
 
         gr.Markdown(article)
 
-    demo.launch()
+    # demo.launch()
+    return demo
 
 
 if __name__ == "__main__":
