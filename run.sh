@@ -11,8 +11,8 @@ echo $dir
 
 # SSL_HOST=root@192.168.50.232
 # SSL_HOST=gpu4090@192.168.50.231
-SSL_HOST=root@47.89.184.191
-# SSL_HOST=root@47.253.107.50
+# SSL_HOST=root@47.89.184.191
+SSL_HOST=root@47.253.107.50
 SSL_DIR="/home/work"
 
 SSL_PEM=~/.ssh/id_rsa

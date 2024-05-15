@@ -430,16 +430,17 @@ def main(pretrained_model_name_or_path="wangqixun/YamerMIX_v8", enable_lcm_arg=F
 
         with gr.Row():
             with gr.Column():
+                with gr.Row():
+                    # upload face image
+                    face_file = gr.Image(
+                        label="Upload a photo of your face", type="filepath"
+                    )
 
-                # upload face image
-                face_file = gr.Image(
-                    label="Upload a photo of your face", type="filepath"
-                )
-
-                # optional: upload a reference pose image
-                pose_file = gr.Image(
-                    label="Upload a reference pose image (optional)", type="filepath"
-                )
+                    # optional: upload a reference pose image
+                    pose_file = gr.Image(
+                        label="Upload a reference pose image (optional)",
+                        type="filepath",
+                    )
 
                 # prompt
                 prompt = gr.Textbox(
