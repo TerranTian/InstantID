@@ -7,6 +7,7 @@ RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -v --use-pep517 -r /
 # RUN pip install -v --use-pep517 -r /root/requirements.txt
 RUN cd /usr/local/lib/python3.10/dist-packages/torch/lib && ln -s libnvrtc-672ee683.so.11.2 libnvrtc.so
 
+RUN python3 gradio_demo/download_models.py
 CMD uvicorn 'app:run' --port 8888 --reload --host 0.0.0.0
 
 
