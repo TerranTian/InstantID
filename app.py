@@ -25,21 +25,19 @@ from fastapi import FastAPI, Request
 app = FastAPI()
 
 
-from gradio_demo.app import main as ui_creator
-
-# from gradio_demo.app_multicontrolnet import main as multicontrolnet_ui_creator
-
 import gradio as gr
 
-ui = ui_creator()
-ui.title = "InstantID"
+# from gradio_demo.app import main as ui_creator
 
-# multicontrolnet_ui = multicontrolnet_ui_creator()
-# multicontrolnet_ui.title = "InstantID"
-print("fuck ...")
+# ui = ui_creator()
+# ui.title = "InstantID"
+# gr.mount_gradio_app(app, ui, path="/app")
 
-gr.mount_gradio_app(app, ui, path="/app")
-# gr.mount_gradio_app(app, multicontrolnet_ui, path="/app")
+from gradio_demo.app_multicontrolnet import main as multicontrolnet_ui_creator
+
+multicontrolnet_ui = multicontrolnet_ui_creator()
+multicontrolnet_ui.title = "InstantID"
+gr.mount_gradio_app(app, multicontrolnet_ui, path="/app")
 
 
 def run(arg_str=""):

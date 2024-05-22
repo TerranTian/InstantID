@@ -18,3 +18,5 @@ gdown
 
 flask
 uvicorn
+
+httpx[socks]
